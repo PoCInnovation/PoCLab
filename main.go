@@ -12,11 +12,20 @@ import (
 var (
 	Token     string
 	ChannelID string
+	Second    int
+	// temporary
+	Message string
+	//
 )
 
 func init() {
 	flag.StringVar(&Token, "t", "", "Bot Token")
 	flag.StringVar(&ChannelID, "c", "", "Channel ID")
+	flag.IntVar(&Second, "s", 5, "second  between refresh")
+
+	// temporary
+	flag.StringVar(&Message, "m", "", "message to be print")
+	//
 	flag.Parse()
 }
 
@@ -28,8 +37,8 @@ func main() {
 		return
 	}
 
-	dg.AddHandler(messageCreate)
-	dg.AddHandler(pinner)
+	//dg.AddHandler(ping)
+	dg.AddHandler(clock)
 
 	dg.Identify.Intents = discordgo.IntentsGuildMessages
 

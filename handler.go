@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
+func ping(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.ID == s.State.User.ID {
 		return
 	}
@@ -24,16 +24,18 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 }
 
-//replace with the diff function
-func getNewPost() string {
-	return "MESSAGE2"
+//TODO: replace with the diff function
+func getNewPost(c chan string) {
+	time.Sleep(5 * time.Second)
+	c <- Message
 }
 
-func pinner(s *discordgo.Session, m *discordgo.MessageCreate) {
-	//TODO: channel use to act async
-	time.Sleep(10 * time.Second)
+func clock(s *discordgo.Session, m *discordgo.MessageCreate) {
+	c := make(chan string)
+	go getNewPost(c)
 
-	_, err := s.ChannelMessageSend(ChannelID, getNewPost())
+	msg := <-c
+	_, err := s.ChannelMessageSend(ChannelID, msg)
 	if err != nil {
 		return
 	}
