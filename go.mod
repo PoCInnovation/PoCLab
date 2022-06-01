@@ -2,7 +2,10 @@ module Bot
 
 go 1.18
 
-require github.com/bwmarrin/discordgo v0.25.0
+require (
+	github.com/Clinet/discordgo-embed v0.0.0-20220113222025-bafe0c917646
+	github.com/bwmarrin/discordgo v0.25.0
+)
 
 require (
 	github.com/gorilla/websocket v1.4.2 // indirect

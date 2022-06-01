@@ -13,15 +13,17 @@ var (
 	Token     string
 	ChannelID string
 	Second    int
-	// temporary
+	Board     string
+
+	// Message temporary
 	Message string
-	//
 )
 
 func init() {
 	flag.StringVar(&Token, "t", "", "Bot Token")
 	flag.StringVar(&ChannelID, "c", "", "Channel ID")
 	flag.IntVar(&Second, "s", 5, "second  between refresh")
+	flag.StringVar(&Board, "b", "announcement", "board to notify") // TODO: modify to add multiple boards
 
 	// temporary
 	flag.StringVar(&Message, "m", "", "message to be print")
@@ -36,8 +38,7 @@ func main() {
 		fmt.Println("error creating Discord session,", err)
 		return
 	}
-
-	//dg.AddHandler(ping)
+	dg.AddHandler(ping)
 	dg.AddHandler(clock)
 
 	dg.Identify.Intents = discordgo.IntentsGuildMessages

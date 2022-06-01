@@ -1,3 +1,5 @@
+github.com/Clinet/discordgo-embed v0.0.0-20220113222025-bafe0c917646 h1:KkKIDMzyOhNnW5ew6KpRvEflciWqo09NmgVGqTZEj3M=
+github.com/Clinet/discordgo-embed v0.0.0-20220113222025-bafe0c917646/go.mod h1:0ydUl+01209LCyzJk68BeRtCN1IMrNJgX4IBmwmC1f8=
 github.com/bwmarrin/discordgo v0.25.0 h1:NXhdfHRNxtwso6FPdzW2i3uBvvU7UIQTghmV2T4nqAs=
 github.com/bwmarrin/discordgo v0.25.0/go.mod h1:NJZpH+1AfhIcyQsPeuBKsUtYrRnjkyu0kIVMCHkZtRY=
 github.com/gorilla/websocket v1.4.2 h1:+/TMaTYc4QFitKJxsQ7Yye35DkWvkdLcvGKqM+x0Ufc=
