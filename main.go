@@ -13,27 +13,20 @@ import (
 var (
 	Token     string
 	ChannelID string
-	Second    int
+	Seconde   int
 	Board     string
-
-	// Message temporary
-	Message string
 )
 
 func init() {
 	flag.StringVar(&Token, "t", "", "Bot Token")
 	flag.StringVar(&ChannelID, "c", "", "Channel ID")
-	flag.IntVar(&Second, "s", 5, "second  between refresh")
+	flag.IntVar(&Seconde, "s", 5, "second  between refresh")
 	flag.StringVar(&Board, "b", "announcement", "board to notify") // TODO: modify to add multiple boards
 
-	// temporary
-	flag.StringVar(&Message, "m", "", "message to be print")
-	//
 	flag.Parse()
 }
 
 func main() {
-	// Create a new Discord session using the provided bot token.
 	dg, err := discordgo.New("Bot " + Token)
 	if err != nil {
 		fmt.Println("error creating Discord session,", err)
@@ -48,13 +41,14 @@ func main() {
 
 	go func() {
 		for true {
-			time.Sleep(time.Duration(Second) * time.Second)
+			time.Sleep(time.Duration(Seconde) * time.Second)
 
-			msg := getNewPost()
-			_, err := dg.ChannelMessageSendEmbed(ChannelID, msg)
-			if err != nil {
-				fmt.Println("error sending message,", err)
-				return
+			newPosts := getNewPosts()
+			for _, v := range newPosts {
+				_, err := dg.ChannelMessageSendEmbed(ChannelID, v.MessageEmbed)
+				if err != nil {
+					return
+				}
 			}
 		}
 	}()
