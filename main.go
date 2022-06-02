@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 )
 
 var (
@@ -38,16 +39,25 @@ func main() {
 		fmt.Println("error creating Discord session,", err)
 		return
 	}
-	dg.AddHandler(ping)
-	dg.AddHandler(clock)
-
-	dg.Identify.Intents = discordgo.IntentsGuildMessages
 
 	err = dg.Open()
 	if err != nil {
 		fmt.Println("error opening connection,", err)
 		return
 	}
+
+	go func() {
+		for true {
+			time.Sleep(time.Duration(Second) * time.Second)
+
+			msg := getNewPost()
+			_, err := dg.ChannelMessageSendEmbed(ChannelID, msg)
+			if err != nil {
+				fmt.Println("error sending message,", err)
+				return
+			}
+		}
+	}()
 
 	fmt.Println("Bot is now running.  Press CTRL-C to exit.")
 	sc := make(chan os.Signal, 1)

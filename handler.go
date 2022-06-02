@@ -1,11 +1,7 @@
 package main
 
 import (
-	"fmt"
-	"github.com/Clinet/discordgo-embed"
 	"github.com/bwmarrin/discordgo"
-
-	"time"
 )
 
 func ping(s *discordgo.Session, m *discordgo.MessageCreate) {
@@ -24,24 +20,5 @@ func ping(s *discordgo.Session, m *discordgo.MessageCreate) {
 		if err != nil {
 			return
 		}
-	}
-}
-
-//TODO: replace with the diff function
-func getNewPost(c chan *discordgo.MessageEmbed) {
-	time.Sleep(time.Duration(Second) * time.Second)
-	c <- embed.NewGenericEmbed("New post on board: "+Board, "voila le message")
-	return
-}
-
-func clock(s *discordgo.Session, m *discordgo.MessageCreate) {
-	c := make(chan *discordgo.MessageEmbed, 1)
-	go getNewPost(c)
-
-	msg := <-c
-	_, err := s.ChannelMessageSendEmbed(ChannelID, msg)
-	fmt.Println("check")
-	if err != nil {
-		return
 	}
 }
