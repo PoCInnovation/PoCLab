@@ -5,6 +5,8 @@ import (
 	embed "github.com/Clinet/discordgo-embed"
 	abci "github.com/gnolang/gno/pkgs/bft/abci/types"
 	"github.com/gnolang/gno/pkgs/bft/rpc/client"
+	"regexp"
+	"strings"
 )
 
 func makeRequest(qpath string, data []byte) (res *abci.ResponseQuery, err error) {
@@ -81,7 +83,12 @@ func getNewPosts() []*embed.Embed {
 	}
 	// debug
 	fmt.Println(BoardPosts)
-
+	re := regexp.MustCompile("\\bpostid=[0-9]")
+	fr := regexp.MustCompile("((\\b[0-9])$)")
+	fmt.Println("Parsing new posts")
+	fmt.Println("------------------")
+	var test = re.FindAllString(BoardPosts, -1)
+	fmt.Println(fr.FindAllString(strings.Join(test, " "), -1))
 	// TODO: parse the posts && keep only the new ones && keep the highest id
 	// TODO: return an array of posts (fill the function GetNewPosts())
 	brutPosts := parseNewPosts(BoardPosts)
