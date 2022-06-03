@@ -28,6 +28,8 @@ func makeRequest(qpath string, data []byte) (res *abci.ResponseQuery, err error)
 	return &qres.Response, nil
 }
 
+var maxId = [-1]
+
 func getBoardsPosts() (string, error) {
 	qpath := "vm/qrender"
 	data := []byte(fmt.Sprintf("%s\n%s", "gno.land/r/boards", Board))
@@ -83,11 +85,30 @@ func getNewPosts() []*embed.Embed {
 	fmt.Println("------------------")
 	var test = re.FindAllString(BoardPosts, -1)
 	fmt.Println(test)
-	fmt.Println(fr.FindAllString(strings.Join(test, " "), -1))
+	// fmt.Println(fr.FindAllString(strings.Join(test, " "), -1))
+	newId, err := strconv.Atoi(fr.FindAllString(strings.Join(test, " "), -1))
+	if maxId != [-1] {
+		if maxId[len(maxId)-1] < newId[len(newId)-1] {
+			var prevMaxId = maxId[len(maxId)-1]
+			var i = 0
+			for ;  newId[i] <= prevMaxId; i++;
 
+			fmt.Printf("Il a y eu %d nouveaux msg\n", maxId[i])
+			maxId = newId
+			return 
+		}
+	} else {
+		maxId = newId
+	}
 	// TODO: parse the posts && keep only the new ones && keep the highest id
 	// TODO: return an array of posts (fill the function GetNewPosts())
 	brutPosts := parseNewPosts(BoardPosts, test)
 	embedPosts := EmbedNewPosts(brutPosts)
 	return embedPosts
 }
+
+-1
+
+1 2 3
+
+1 4 5
