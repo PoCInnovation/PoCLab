@@ -28,7 +28,7 @@ func makeRequest(qpath string, data []byte) (res *abci.ResponseQuery, err error)
 	return &qres.Response, nil
 }
 
-var maxId = [-1]
+var maxId []int 
 
 func getBoardsPosts() (string, error) {
 	qpath := "vm/qrender"
@@ -45,8 +45,8 @@ type Post struct {
 	Title  string
 	Author string
 }
-
-func parseNewPosts(BoardPosts string, index []string) []Post {
+ 
+func parseNewPosts(BoardPosts string, index []string, indexMax int) []Post {
 	//TODO: replace by real parsing
 	post := make([]Post, 0)
 	//for _, i := range index {
@@ -87,28 +87,31 @@ func getNewPosts() []*embed.Embed {
 	fmt.Println(test)
 	// fmt.Println(fr.FindAllString(strings.Join(test, " "), -1))
 	newId, err := strconv.Atoi(fr.FindAllString(strings.Join(test, " "), -1))
-	if maxId != [-1] {
+	var newId = [1, 2, 3, 4]
+	if len(maxId) != 0 {
 		if maxId[len(maxId)-1] < newId[len(newId)-1] {
+			// fmt.Printf("(%d)(%d)\n", maxId[len(maxId)-1], newId[len(newId)-1])
 			var prevMaxId = maxId[len(maxId)-1]
-			var i = 0
-			for ;  newId[i] <= prevMaxId; i++;
-
-			fmt.Printf("Il a y eu %d nouveaux msg\n", maxId[i])
+			
+			for i := range newId {
+				if newId[i] > prevMaxId {
+					fmt.Printf("NewId %d\n", newId[i])
+					parseNewPosts(BoardPosts, test, newId[i])
+					return 
+				}
+				// fmt.Println(i, s)
+			}
+			// fmt.Printf("Il a y eu %d nouveaux msg\n", maxId[i])
 			maxId = newId
 			return 
 		}
 	} else {
 		maxId = newId
 	}
+	fmt.Println(maxId)
 	// TODO: parse the posts && keep only the new ones && keep the highest id
 	// TODO: return an array of posts (fill the function GetNewPosts())
 	brutPosts := parseNewPosts(BoardPosts, test)
 	embedPosts := EmbedNewPosts(brutPosts)
 	return embedPosts
 }
-
--1
-
-1 2 3
-
-1 4 5
