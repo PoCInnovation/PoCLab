@@ -87,7 +87,6 @@ func getNewPosts() []*embed.Embed {
 	fmt.Println(test)
 	// fmt.Println(fr.FindAllString(strings.Join(test, " "), -1))
 	newId, err := strconv.Atoi(fr.FindAllString(strings.Join(test, " "), -1))
-	var newId = [1, 2, 3, 4]
 	if len(maxId) != 0 {
 		if maxId[len(maxId)-1] < newId[len(newId)-1] {
 			// fmt.Printf("(%d)(%d)\n", maxId[len(maxId)-1], newId[len(newId)-1])
