@@ -44,22 +44,15 @@ type Post struct {
 	Author string
 }
 
-func parseNewPosts(BoardPosts string) []Post {
+func parseNewPosts(BoardPosts string, index []string) []Post {
 	//TODO: replace by real parsing
-	return []Post{
-		{
-			Title:  "Test",
-			Author: "me1",
-		},
-		{
-			Title:  "Test",
-			Author: "me2",
-		},
-		{
-			Title:  "Test",
-			Author: "me3",
-		},
-	}
+	post := make([]Post, 0)
+	//for _, i := range index {
+	//	if i > indexMax {
+	//		post = append(post, Post{Title: "", Author: ""})
+	//	}
+	//}
+	return post
 }
 
 func EmbedNewPosts(posts []Post) []*embed.Embed {
@@ -83,16 +76,18 @@ func getNewPosts() []*embed.Embed {
 	}
 	// debug
 	fmt.Println(BoardPosts)
-	re := regexp.MustCompile("\\bpostid=[0-9]")
-	fr := regexp.MustCompile("((\\b[0-9])$)")
+
+	re := regexp.MustCompile("\\bpostid=[0-9]+")
+	fr := regexp.MustCompile("((\\b[0-9]+)$)")
 	fmt.Println("Parsing new posts")
 	fmt.Println("------------------")
 	var test = re.FindAllString(BoardPosts, -1)
+	fmt.Println(test)
 	fmt.Println(fr.FindAllString(strings.Join(test, " "), -1))
+
 	// TODO: parse the posts && keep only the new ones && keep the highest id
 	// TODO: return an array of posts (fill the function GetNewPosts())
-	brutPosts := parseNewPosts(BoardPosts)
+	brutPosts := parseNewPosts(BoardPosts, test)
 	embedPosts := EmbedNewPosts(brutPosts)
-
 	return embedPosts
 }
