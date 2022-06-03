@@ -7,7 +7,10 @@ import (
 	"github.com/gnolang/gno/pkgs/bft/rpc/client"
 	"regexp"
 	"strings"
+	"strconv"
 )
+
+var maxId []int 
 
 func makeRequest(qpath string, data []byte) (res *abci.ResponseQuery, err error) {
 	opts2 := client.ABCIQueryOptions{
@@ -44,7 +47,7 @@ type Post struct {
 	Author string
 }
 
-func parseNewPosts(BoardPosts string, index []string) []Post {
+func parseNewPosts(BoardPosts string, index []string, indexMax int) []*embed.Embed {
 	//TODO: replace by real parsing
 	post := make([]Post, 0)
 	//for _, i := range index {
@@ -52,7 +55,7 @@ func parseNewPosts(BoardPosts string, index []string) []Post {
 	//		post = append(post, Post{Title: "", Author: ""})
 	//	}
 	//}
-	return post
+	return EmbedNewPosts(post)
 }
 
 func EmbedNewPosts(posts []Post) []*embed.Embed {
@@ -75,21 +78,50 @@ func getNewPosts() []*embed.Embed {
 		return nil
 	}
 	// debug
-	fmt.Println(BoardPosts)
+	// fmt.Println(BoardPosts)
 
 	re := regexp.MustCompile("\\bpostid=[0-9]+")
 	fr := regexp.MustCompile("(\\b[0-9]+)")
 	fmt.Println("Parsing new posts")
-	fmt.Println("------------------")
+	// fmt.Println("------------------")
 	var getId = re.FindAllString(BoardPosts, -1)
-	fmt.Println(getId)
-	fmt.Println(fr.FindAllString(strings.Join(getId, " "), -1))
+	// fmt.Println(getId)
+	var newIdString = fr.FindAllString(strings.Join(getId, " "), -1)
+	var newId = []int{}
+
+    for _, i := range newIdString {
+        j, err := strconv.Atoi(i)
+        if err != nil {
+            panic(err)
+        }
+        newId = append(newId, j)
+    }
+	if len(maxId) != 0 {
+		if maxId[len(maxId)-1] < newId[len(newId)-1] {
+			// fmt.Printf("(%d)(%d)\n", maxId[len(maxId)-1], newId[len(newId)-1])
+			var prevMaxId = maxId[len(maxId)-1]
+			
+			for i := range newId {
+				if newId[i] > prevMaxId {
+					fmt.Printf("NewId %d\n", newId[i])
+					maxId = newId
+					return parseNewPosts(BoardPosts, newIdString, newId[i])
+				}
+				// fmt.Println(i, s)
+			}
+			// fmt.Printf("Il a y eu %d nouveaux msg\n", maxId[i])
+			return nil
+		}
+	} else {
+		maxId = newId
+	}
+	fmt.Println()
 
 	// TODO: parse the posts && keep only the new ones && keep the highest id
 	// TODO: return an array of posts (fill the function GetNewPosts())
-	brutPosts := parseNewPosts(BoardPosts, getId)
-	embedPosts := EmbedNewPosts(brutPosts)
-	return embedPosts
+	// brutPosts := parseNewPosts(BoardPosts, getId)
+	// embedPosts := EmbedNewPosts(brutPosts)
+	return nil
 }
 
 // 1 2 3
