@@ -131,11 +131,11 @@ func getNewPosts(board string) ([]*embed.Embed, error) {
 			return parseNewPosts(BoardPosts, maxId[board], board), nil
 		}
 	} else {
-		fmt.Println("first setup")
 		if len(newId) > 0 {
+			fmt.Println("first setup for this board:", board)
 			maxId[board] = newId[len(newId)-1]
 		} else {
-			fmt.Println("Empty board ...")
+			fmt.Println("Empty board:", board)
 		}
 	}
 	return nil, nil

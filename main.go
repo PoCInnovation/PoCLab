@@ -24,25 +24,25 @@ func main() {
 		return
 	}
 
-	go func() {
-		for true {
-			time.Sleep(time.Duration(Seconde))
+	for true {
+		time.Sleep(time.Duration(Seconde))
 
-			for _, board := range Boards {
-				newPosts, warn := getNewPosts(board)
-				if warn != nil {
-					fmt.Println("error in getNewPosts", err)
+		for _, board := range Boards {
+			newPosts, warn := getNewPosts(board)
+			if warn != nil {
+				fmt.Println("error in getNewPosts.")
+				err = dg.Close()
+				return
+			}
+			for _, p := range newPosts {
+				_, err := dg.ChannelMessageSendEmbed(ChannelID, p.MessageEmbed)
+				if err != nil {
+					err = dg.Close()
 					return
-				}
-				for _, p := range newPosts {
-					_, err := dg.ChannelMessageSendEmbed(ChannelID, p.MessageEmbed)
-					if err != nil {
-						return
-					}
 				}
 			}
 		}
-	}()
+	}
 
 	fmt.Println("Bot is now running.  Press CTRL-C to exit.")
 	sc := make(chan os.Signal, 1)
