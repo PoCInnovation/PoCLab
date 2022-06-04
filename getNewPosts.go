@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	embed "github.com/Clinet/discordgo-embed"
+	"github.com/enescakir/emoji"
 	abci "github.com/gnolang/gno/pkgs/bft/abci/types"
 	"github.com/gnolang/gno/pkgs/bft/rpc/client"
 	"regexp"
@@ -51,23 +52,28 @@ func getBoardsPosts(board string) (string, error) {
 }
 
 type Post struct {
-	Title  string
-	Author string
-	Id     int
+	Title       string
+	Author      string
+	Description string
+	Id          int
 }
 
 func GetPostInfos(post string, id int) Post {
 	regAuthor := regexp.MustCompile(`\\- \[(@[a-z]+)\]`)
 	regTitle := regexp.MustCompile(`## \[([^\[\]]+)\]`)
+	regDescription := regexp.MustCompile(`(?s)\)\n\n.*\n\\`)
 	matchTitle := regTitle.FindStringSubmatch(post)
 	matchAuthor := regAuthor.FindStringSubmatch(post)
+	matchDescription := regDescription.FindStringSubmatch(post)[0][3:]
+	matchDescription = matchDescription[:len(matchDescription)-2]
 
 	fmt.Println(post)
 
 	p := Post{
-		Title:  matchTitle[1],
-		Author: matchAuthor[1],
-		Id:     id,
+		Title:       matchTitle[1],
+		Author:      matchAuthor[1],
+		Description: matchDescription,
+		Id:          id,
 	}
 	fmt.Println(p)
 	return p
@@ -99,8 +105,8 @@ func EmbedNewPosts(posts []Post, board string) []*embed.Embed {
 	embeds := make([]*embed.Embed, 0)
 	for _, post := range posts {
 		embeds = append(embeds, embed.NewEmbed().
-			SetTitle(fmt.Sprintf("New post on: %s", board)).
-			SetDescription(fmt.Sprintf("**%s**\nhttps://gno.land/r/boards:%s/%d", post.Title, board, post.Id)).
+			SetTitle(fmt.Sprintf("New post on: %s %v ", board, emoji.OpenMailboxWithRaisedFlag)).
+			SetDescription(fmt.Sprintf("**%s**\n%s\n\nhttps://gno.land/r/boards:%s/%d", post.Title, post.Description, board, post.Id)).
 			SetAuthor(post.Author).
 			SetColor(0x00FF00))
 	}
