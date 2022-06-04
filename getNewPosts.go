@@ -6,11 +6,11 @@ import (
 	abci "github.com/gnolang/gno/pkgs/bft/abci/types"
 	"github.com/gnolang/gno/pkgs/bft/rpc/client"
 	"regexp"
-	"strings"
 	"strconv"
+	"strings"
 )
 
-var maxId []int 
+var maxId []int
 
 func makeRequest(qpath string, data []byte) (res *abci.ResponseQuery, err error) {
 	opts2 := client.ABCIQueryOptions{
@@ -47,14 +47,53 @@ type Post struct {
 	Author string
 }
 
+func GetPostInfos(post string) Post {
+	// cath regex "\\- \[(@[a-z]+)\]"
+	// matchTitle[1] is the author
+	// matchTitle[2] is the title
+	regAuthor := regexp.MustCompile(`\\- \[(@[a-z]+)\]`)
+	regTitle := regexp.MustCompile(`## \[([^\[\]]+)\]`)
+	// get group 1 of regex in post
+	matchTitle := regTitle.FindStringSubmatch(post)
+	matchAuthor := regAuthor.FindStringSubmatch(post)
+
+	fmt.Println(post)
+	fmt.Println("ICI")
+	fmt.Println(matchTitle)
+	fmt.Println(matchAuthor)
+
+	p := Post{
+		Title:  matchTitle[1],
+		Author: matchAuthor[1],
+	}
+	fmt.Println(p)
+	return p
+}
+
+func GetPostID(s string) (int, error) {
+	re := regexp.MustCompile("\\bpostid=([0-9]+)")
+	match := re.FindStringSubmatch(s)
+	//fmt.Println(s)
+	if len(match) == 0 {
+		return 0, nil
+	}
+	//fmt.Printf("THIS IS %s\n", match[1])
+	return strconv.Atoi(match[1])
+}
+
 func parseNewPosts(BoardPosts string, index []string, indexMax int) []*embed.Embed {
 	//TODO: replace by real parsing
-	post := make([]Post, 0)
-	//for _, i := range index {
-	//	if i > indexMax {
-	//		post = append(post, Post{Title: "", Author: ""})
-	//	}
-	//}
+	var post []Post
+	a := strings.Split(BoardPosts, "----------------------------------------")
+	for _, c := range a {
+		nb, _ := GetPostID(c)
+		fmt.Printf("ID MAX IS %d\n", indexMax)
+		if nb > indexMax {
+			fmt.Println("New post HERE")
+			post = append(post, GetPostInfos(c))
+			maxId[len(maxId)-1] = nb
+		}
+	}
 	return EmbedNewPosts(post)
 }
 
@@ -67,6 +106,7 @@ func EmbedNewPosts(posts []Post) []*embed.Embed {
 			SetAuthor(post.Author).
 			SetColor(0x00FF00))
 	}
+	fmt.Printf("THERE IS %d NEW POSTS\n", len(embeds))
 	return embeds
 }
 
@@ -78,41 +118,44 @@ func getNewPosts() []*embed.Embed {
 		return nil
 	}
 	// debug
-	// fmt.Println(BoardPosts)
+	//fmt.Println(BoardPosts)
 
-	re := regexp.MustCompile("\\bpostid=[0-9]+")
+	re := regexp.MustCompile("\\bpostid=([0-9]+)")
 	fr := regexp.MustCompile("(\\b[0-9]+)")
-	fmt.Println("Parsing new posts")
+	if len(maxId) > 0 {
+		fmt.Printf("Parsing new posts %d\n", maxId[len(maxId)-1])
+	}
 	// fmt.Println("------------------")
 	var getId = re.FindAllString(BoardPosts, -1)
 	// fmt.Println(getId)
 	var newIdString = fr.FindAllString(strings.Join(getId, " "), -1)
-	var newId = []int{}
+	var newId []int
 
-    for _, i := range newIdString {
-        j, err := strconv.Atoi(i)
-        if err != nil {
-            panic(err)
-        }
-        newId = append(newId, j)
-    }
+	for _, i := range newIdString {
+		j, err := strconv.Atoi(i)
+		if err != nil {
+			panic(err)
+		}
+		newId = append(newId, j)
+	}
 	if len(maxId) != 0 {
 		if maxId[len(maxId)-1] < newId[len(newId)-1] {
 			// fmt.Printf("(%d)(%d)\n", maxId[len(maxId)-1], newId[len(newId)-1])
 			var prevMaxId = maxId[len(maxId)-1]
-			
+
 			for i := range newId {
 				if newId[i] > prevMaxId {
 					fmt.Printf("NewId %d\n", newId[i])
-					maxId = newId
-					return parseNewPosts(BoardPosts, newIdString, newId[i])
+					return parseNewPosts(BoardPosts, newIdString, maxId[len(maxId)-1])
 				}
 				// fmt.Println(i, s)
 			}
 			// fmt.Printf("Il a y eu %d nouveaux msg\n", maxId[i])
+			fmt.Println("no new id")
 			return nil
 		}
 	} else {
+		fmt.Println("first setup")
 		maxId = newId
 	}
 	fmt.Println()
