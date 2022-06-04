@@ -11,15 +11,35 @@ It aims to track the activity of gno.land by displaying for example the new post
 
 ### Installation
 
-[Explain how to install all of the project's dependencies]
+Install [docker](https://docs.docker.com/engine/)
 
 ### Quickstart
 
-[Explain how to run this project]
+Build the application
+
+```bash
+docker build -t poc-lab . 
+```
+
+Run the application
+
+```bash
+docker run poc-lab -t {bot_token} -c {channel_id}  -s {delay} -b {board}
+```
 
 ### Usage
 
-[Explain how to use this project]
+```bash
+Usage of ./poc-lab:
+  -b value
+        board to notify
+  -c string
+        Channel ID
+  -s value
+        second  between refresh
+  -t string
+        Bot Token
+ ```
 
 ## Get involved
 
