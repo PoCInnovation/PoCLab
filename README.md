@@ -1,8 +1,7 @@
-> If you see this section, you've just created a repository using [PoC Innovation's Open-Source project template](https://github.com/PoCInnovation/open-source-project-template). Check the [getting started guide](./.github/getting-started.md).
+# PoCLab
 
-# [PROJECT'S NAME]
-
-[Project's description]
+The project is a bot discord developed in [Go](https://go.dev/).
+It aims to track the activity of gno.land by displaying for example the new posts on the different boards.
 
 ## How does it work?
 
@@ -26,17 +25,11 @@
 
 You're invited to join this project ! Check out the [contributing guide](./CONTRIBUTING.md).
 
-If you're interested in how the project is organized at a higher level, please contact the current project manager.
-
 ## Our PoC team :heart:
 
 Developers
-| [<img src="https://github.com/MrZalTy.png?size=85" width=85><br><sub>[Developer's name]</sub>](https://github.com/MrZalTy) | [<img src="https://github.com/MrZalTy.png?size=85" width=85><br><sub>[Developer's name]</sub>](https://github.com/MrZalTy) | [<img src="https://github.com/MrZalTy.png?size=85" width=85><br><sub>[Developer's name]</sub>](https://github.com/MrZalTy)
-| :---: | :---: | :---: |
-
-Manager
-| [<img src="https://github.com/adrienfort.png?size=85" width=85><br><sub>[Manager's name]</sub>](https://github.com/adrienfort)
-| :---: |
+| [<img src="https://github.com/Mikatech.png?size=85" width=85><br><sub>Mikaël Vallenet</sub>](https://github.com/Mikatech) | [<img src="https://github.com/Doozers.png?size=85" width=85><br><sub>Ismaël Fall</sub>](https://github.com/Doozers) | [<img src="https://github.com/AbdelkarimBENGRINE.png?size=85" width=85><br><sub>Abdelkarim Bengrine</sub>](https://github.com/AbdelkarimBENGRINE) | [<img src="https://github.com/OnsagerHe.png?size=85" width=85><br><sub>Albert Valentin</sub>](https://github.com/OnsagerHe)
+| :---: | :---: | :---: | :---: |
 
 <h2 align=center>
 Organization
