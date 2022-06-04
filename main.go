@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"os"
@@ -10,30 +9,14 @@ import (
 	"time"
 )
 
-var (
-	Token     string
-	ChannelID string
-	Second    int
-	Board     string
-
-	// Message temporary
-	Message string
-)
-
-func init() {
-	flag.StringVar(&Token, "t", "", "Bot Token")
-	flag.StringVar(&ChannelID, "c", "", "Channel ID")
-	flag.IntVar(&Second, "s", 5, "second  between refresh")
-	flag.StringVar(&Board, "b", "announcement", "board to notify") // TODO: modify to add multiple boards
-
-	// temporary
-	flag.StringVar(&Message, "m", "", "message to be print")
-	//
-	flag.Parse()
-}
-
 func main() {
-	// Create a new Discord session using the provided bot token.
+	err := setup(Boards)
+
+	if err != nil {
+		fmt.Println("Error: ", err)
+		return
+	}
+
 	dg, err := discordgo.New("Bot " + Token)
 	if err != nil {
 		fmt.Println("error creating Discord session,", err)
@@ -46,18 +29,25 @@ func main() {
 		return
 	}
 
-	go func() {
-		for true {
-			time.Sleep(time.Duration(Second) * time.Second)
+	for true {
+		time.Sleep(time.Duration(Seconde))
 
-			msg := getNewPost()
-			_, err := dg.ChannelMessageSendEmbed(ChannelID, msg)
-			if err != nil {
-				fmt.Println("error sending message,", err)
+		for _, board := range Boards {
+			newPosts, warn := getNewPosts(board)
+			if warn != nil {
+				fmt.Println("error in getNewPosts.")
+				err = dg.Close()
 				return
 			}
+			for _, p := range newPosts {
+				_, err := dg.ChannelMessageSendEmbed(ChannelID, p.MessageEmbed)
+				if err != nil {
+					err = dg.Close()
+					return
+				}
+			}
 		}
-	}()
+	}
 
 	fmt.Println("Bot is now running.  Press CTRL-C to exit.")
 	sc := make(chan os.Signal, 1)
