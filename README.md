@@ -1,6 +1,6 @@
 # PoCLab 🚀
 
-The project is a bot discord developed in [Go](https://go.dev/).
+The project is a bot discord developed in [Go](https://go.dev/).\
 It aims to track the activity of gno.land by displaying for example the new posts on the different boards.
 
 ## How does it work?
