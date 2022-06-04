@@ -16,6 +16,7 @@ require (
 	github.com/dgraph-io/badger/v3 v3.2103.2 // indirect
 	github.com/dgraph-io/ristretto v0.1.0 // indirect
 	github.com/dustin/go-humanize v1.0.0 // indirect
+	github.com/enescakir/emoji v1.0.0 // indirect
 	github.com/gnolang/cors v1.8.1 // indirect
 	github.com/gnolang/overflow v0.0.0-20170615021017-4d914c927216 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
