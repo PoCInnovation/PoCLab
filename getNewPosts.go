@@ -101,7 +101,7 @@ func EmbedNewPosts(posts []Post, board string) []*embed.Embed {
 			SetTitle(fmt.Sprintf("New post on: %s %v ", board, emoji.OpenMailboxWithRaisedFlag)).
 			SetDescription(fmt.Sprintf("**%s**\n%s\n\nhttps://gno.land/r/boards:%s/%d", post.Title, post.Description, board, post.Id)).
 			SetAuthor(post.Author).
-			SetColor(0x00FF00))
+			SetColor(0x6e0e08))
 	}
 	fmt.Printf("THERE IS %d NEW POSTS\n", len(embeds))
 	return embeds
