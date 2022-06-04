@@ -45,6 +45,13 @@ Usage of ./poc-lab:
   -t string
         Bot Token
  ```
+ 
+ ### Result
+
+<div align="center">
+<img src="./.demo/2022-06-04_20-01.png"/>
+</div>
+
 
 ## Get involved :star:
 
