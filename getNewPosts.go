@@ -36,13 +36,6 @@ func getBoardsPosts(board string) (string, error) {
 	data := []byte(fmt.Sprintf("%s\n%s", "gno.land/r/boards", board))
 	res, err := makeRequest(qpath, data)
 
-	re := regexp.MustCompile("\\b(board does not exist:)")
-	match := re.FindStringSubmatch(string(res.Data))
-
-	if match != nil {
-		fmt.Println("Error: ", string(res.Data))
-		return "", fmt.Errorf("%s", string(res.Data))
-	}
 	if err != nil {
 		fmt.Println("Error: ", res.Log)
 		return "", err

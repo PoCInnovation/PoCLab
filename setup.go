@@ -2,6 +2,8 @@ package main
 
 import (
 	"flag"
+	"fmt"
+	"regexp"
 	"strconv"
 	"time"
 )
@@ -47,9 +49,25 @@ func init() {
 	flag.Parse()
 }
 
-func setup() {
+func setup(Boards []string) error {
 	if Seconde == 0 {
 		Seconde = 5
 	}
-	//TODO: check if boards are valid
+	for _, board := range Boards {
+		qpath := "vm/qrender"
+		data := []byte(fmt.Sprintf("%s\n%s", "gno.land/r/boards", board))
+		res, err := makeRequest(qpath, data)
+
+		if err != nil {
+			return err
+		}
+
+		re := regexp.MustCompile("\\b(board does not exist:)")
+		match := re.FindStringSubmatch(string(res.Data))
+
+		if match != nil {
+			return fmt.Errorf("%s", string(res.Data))
+		}
+	}
+	return nil
 }

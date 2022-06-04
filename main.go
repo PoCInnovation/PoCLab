@@ -10,7 +10,12 @@ import (
 )
 
 func main() {
-	setup()
+	err := setup(Boards)
+
+	if err != nil {
+		fmt.Println("Error: ", err)
+		return
+	}
 
 	dg, err := discordgo.New("Bot " + Token)
 	if err != nil {
