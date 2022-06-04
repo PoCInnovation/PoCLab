@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"os"
@@ -10,33 +9,9 @@ import (
 	"time"
 )
 
-type arrayFlags []string
-
-var (
-	Token     string
-	ChannelID string
-	Seconde   int
-	Boards    arrayFlags
-)
-
-func (i *arrayFlags) String() string {
-	return "my string representation"
-}
-
-func (i *arrayFlags) Set(value string) error {
-	*i = append(*i, value)
-	return nil
-}
-
-func init() {
-	flag.StringVar(&Token, "t", "", "Bot Token")
-	flag.StringVar(&ChannelID, "c", "", "Channel ID")
-	flag.IntVar(&Seconde, "s", 5, "second  between refresh")
-	flag.Var(&Boards, "b", "board to notify")
-	flag.Parse()
-}
-
 func main() {
+	setup()
+
 	dg, err := discordgo.New("Bot " + Token)
 	if err != nil {
 		fmt.Println("error creating Discord session,", err)
@@ -51,12 +26,12 @@ func main() {
 
 	go func() {
 		for true {
-			time.Sleep(time.Duration(Seconde) * time.Second)
+			time.Sleep(time.Duration(Seconde))
 
 			for _, board := range Boards {
 				newPosts := getNewPosts(board)
-				for _, v := range newPosts {
-					_, err := dg.ChannelMessageSendEmbed(ChannelID, v.MessageEmbed)
+				for _, p := range newPosts {
+					_, err := dg.ChannelMessageSendEmbed(ChannelID, p.MessageEmbed)
 					if err != nil {
 						return
 					}

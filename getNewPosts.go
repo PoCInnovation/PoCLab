@@ -108,13 +108,11 @@ func getNewPosts(board string) []*embed.Embed {
 	}
 
 	re := regexp.MustCompile("\\bpostid=([0-9]+)")
-	fr := regexp.MustCompile("(\\b[0-9]+)")
-	var getId = re.FindAllString(BoardPosts, -1)
-	var newIdString = fr.FindAllString(strings.Join(getId, " "), -1)
+	var newIdString = re.FindAllStringSubmatch(BoardPosts, 1)
 	var newId []int
 
 	for _, i := range newIdString {
-		j, err := strconv.Atoi(i)
+		j, err := strconv.Atoi(i[1])
 		if err != nil {
 			panic(err)
 		}
