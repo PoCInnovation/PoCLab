@@ -1,4 +1,4 @@
-# PoCLab
+# PoCLab 🚀
 
 The project is a bot discord developed in [Go](https://go.dev/).
 It aims to track the activity of gno.land by displaying for example the new posts on the different boards.
@@ -7,7 +7,7 @@ It aims to track the activity of gno.land by displaying for example the new post
 
 [Explain how this project is working]
 
-## Getting Started
+## Getting Started 🏁
 
 ### Installation
 
@@ -41,7 +41,7 @@ Usage of ./poc-lab:
         Bot Token
  ```
 
-## Get involved
+## Get involved :star:
 
 You're invited to join this project ! Check out the [contributing guide](./CONTRIBUTING.md).
 
