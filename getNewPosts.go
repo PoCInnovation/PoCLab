@@ -6,11 +6,11 @@ import (
 	abci "github.com/gnolang/gno/pkgs/bft/abci/types"
 	"github.com/gnolang/gno/pkgs/bft/rpc/client"
 	"regexp"
-	"strings"
 	"strconv"
+	"strings"
 )
 
-var maxId []int 
+var maxId []int
 
 func makeRequest(qpath string, data []byte) (res *abci.ResponseQuery, err error) {
 	opts2 := client.ABCIQueryOptions{
@@ -87,20 +87,20 @@ func getNewPosts() []*embed.Embed {
 	var getId = re.FindAllString(BoardPosts, -1)
 	// fmt.Println(getId)
 	var newIdString = fr.FindAllString(strings.Join(getId, " "), -1)
-	var newId = []int{}
+	var newId []int
 
-    for _, i := range newIdString {
-        j, err := strconv.Atoi(i)
-        if err != nil {
-            panic(err)
-        }
-        newId = append(newId, j)
-    }
+	for _, i := range newIdString {
+		j, err := strconv.Atoi(i)
+		if err != nil {
+			panic(err)
+		}
+		newId = append(newId, j)
+	}
 	if len(maxId) != 0 {
 		if maxId[len(maxId)-1] < newId[len(newId)-1] {
 			// fmt.Printf("(%d)(%d)\n", maxId[len(maxId)-1], newId[len(newId)-1])
 			var prevMaxId = maxId[len(maxId)-1]
-			
+
 			for i := range newId {
 				if newId[i] > prevMaxId {
 					fmt.Printf("NewId %d\n", newId[i])
