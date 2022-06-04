@@ -35,8 +35,16 @@ func getBoardsPosts(board string) (string, error) {
 	qpath := "vm/qrender"
 	data := []byte(fmt.Sprintf("%s\n%s", "gno.land/r/boards", board))
 	res, err := makeRequest(qpath, data)
+
+	re := regexp.MustCompile("\\b(board does not exist:)")
+	match := re.FindStringSubmatch(string(res.Data))
+
+	if match != nil {
+		fmt.Println("Error: ", string(res.Data))
+		return "", fmt.Errorf("%s", string(res.Data))
+	}
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("Error: ", res.Log)
 		return "", err
 	}
 	return string(res.Data), nil
@@ -100,11 +108,11 @@ func EmbedNewPosts(posts []Post, board string) []*embed.Embed {
 	return embeds
 }
 
-func getNewPosts(board string) []*embed.Embed {
+func getNewPosts(board string) ([]*embed.Embed, error) {
 	// this return the posts from the watched board
 	BoardPosts, err := getBoardsPosts(board)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 
 	re := regexp.MustCompile("\\bpostid=([0-9]+)")
@@ -120,11 +128,15 @@ func getNewPosts(board string) []*embed.Embed {
 	}
 	if maxId[board] != 0 {
 		if maxId[board] < newId[len(newId)-1] {
-			return parseNewPosts(BoardPosts, maxId[board], board)
+			return parseNewPosts(BoardPosts, maxId[board], board), nil
 		}
 	} else {
 		fmt.Println("first setup")
-		maxId[board] = newId[len(newId)-1]
+		if len(newId) > 0 {
+			maxId[board] = newId[len(newId)-1]
+		} else {
+			fmt.Println("Empty board ...")
+		}
 	}
-	return nil
+	return nil, nil
 }

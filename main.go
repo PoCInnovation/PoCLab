@@ -29,7 +29,11 @@ func main() {
 			time.Sleep(time.Duration(Seconde))
 
 			for _, board := range Boards {
-				newPosts := getNewPosts(board)
+				newPosts, warn := getNewPosts(board)
+				if warn != nil {
+					fmt.Println("error in getNewPosts", err)
+					return
+				}
 				for _, p := range newPosts {
 					_, err := dg.ChannelMessageSendEmbed(ChannelID, p.MessageEmbed)
 					if err != nil {
