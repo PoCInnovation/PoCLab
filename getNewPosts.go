@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-var maxId []int
+var maxId = make(map[string]int)
 
 func makeRequest(qpath string, data []byte) (res *abci.ResponseQuery, err error) {
 	opts2 := client.ABCIQueryOptions{
@@ -31,9 +31,9 @@ func makeRequest(qpath string, data []byte) (res *abci.ResponseQuery, err error)
 	return &qres.Response, nil
 }
 
-func getBoardsPosts() (string, error) {
+func getBoardsPosts(board string) (string, error) {
 	qpath := "vm/qrender"
-	data := []byte(fmt.Sprintf("%s\n%s", "gno.land/r/boards", Board))
+	data := []byte(fmt.Sprintf("%s\n%s", "gno.land/r/boards", board))
 	res, err := makeRequest(qpath, data)
 	if err != nil {
 		fmt.Println(err)
@@ -45,26 +45,21 @@ func getBoardsPosts() (string, error) {
 type Post struct {
 	Title  string
 	Author string
+	Id     int
 }
 
-func GetPostInfos(post string) Post {
-	// cath regex "\\- \[(@[a-z]+)\]"
-	// matchTitle[1] is the author
-	// matchTitle[2] is the title
+func GetPostInfos(post string, id int) Post {
 	regAuthor := regexp.MustCompile(`\\- \[(@[a-z]+)\]`)
 	regTitle := regexp.MustCompile(`## \[([^\[\]]+)\]`)
-	// get group 1 of regex in post
 	matchTitle := regTitle.FindStringSubmatch(post)
 	matchAuthor := regAuthor.FindStringSubmatch(post)
 
 	fmt.Println(post)
-	fmt.Println("ICI")
-	fmt.Println(matchTitle)
-	fmt.Println(matchAuthor)
 
 	p := Post{
 		Title:  matchTitle[1],
 		Author: matchAuthor[1],
+		Id:     id,
 	}
 	fmt.Println(p)
 	return p
@@ -73,36 +68,31 @@ func GetPostInfos(post string) Post {
 func GetPostID(s string) (int, error) {
 	re := regexp.MustCompile("\\bpostid=([0-9]+)")
 	match := re.FindStringSubmatch(s)
-	//fmt.Println(s)
 	if len(match) == 0 {
 		return 0, nil
 	}
-	//fmt.Printf("THIS IS %s\n", match[1])
 	return strconv.Atoi(match[1])
 }
 
-func parseNewPosts(BoardPosts string, index []string, indexMax int) []*embed.Embed {
-	//TODO: replace by real parsing
+func parseNewPosts(BoardPosts string, indexMax int, board string) []*embed.Embed {
 	var post []Post
 	a := strings.Split(BoardPosts, "----------------------------------------")
 	for _, c := range a {
 		nb, _ := GetPostID(c)
-		fmt.Printf("ID MAX IS %d\n", indexMax)
 		if nb > indexMax {
-			fmt.Println("New post HERE")
-			post = append(post, GetPostInfos(c))
-			maxId[len(maxId)-1] = nb
+			post = append(post, GetPostInfos(c, nb))
+			maxId[board] = nb
 		}
 	}
-	return EmbedNewPosts(post)
+	return EmbedNewPosts(post, board)
 }
 
-func EmbedNewPosts(posts []Post) []*embed.Embed {
+func EmbedNewPosts(posts []Post, board string) []*embed.Embed {
 	embeds := make([]*embed.Embed, 0)
 	for _, post := range posts {
 		embeds = append(embeds, embed.NewEmbed().
-			SetTitle(fmt.Sprintf("New post on: %s", Board)).
-			SetDescription(post.Title).
+			SetTitle(fmt.Sprintf("New post on: %s", board)).
+			SetDescription(fmt.Sprintf("**%s**\nhttps://gno.land/r/boards:%s/%d", post.Title, board, post.Id)).
 			SetAuthor(post.Author).
 			SetColor(0x00FF00))
 	}
@@ -110,24 +100,16 @@ func EmbedNewPosts(posts []Post) []*embed.Embed {
 	return embeds
 }
 
-// TODO: replace with the diff function
-func getNewPosts() []*embed.Embed {
+func getNewPosts(board string) []*embed.Embed {
 	// this return the posts from the watched board
-	BoardPosts, err := getBoardsPosts()
+	BoardPosts, err := getBoardsPosts(board)
 	if err != nil {
 		return nil
 	}
-	// debug
-	//fmt.Println(BoardPosts)
 
 	re := regexp.MustCompile("\\bpostid=([0-9]+)")
 	fr := regexp.MustCompile("(\\b[0-9]+)")
-	if len(maxId) > 0 {
-		fmt.Printf("Parsing new posts %d\n", maxId[len(maxId)-1])
-	}
-	// fmt.Println("------------------")
 	var getId = re.FindAllString(BoardPosts, -1)
-	// fmt.Println(getId)
 	var newIdString = fr.FindAllString(strings.Join(getId, " "), -1)
 	var newId []int
 
@@ -138,35 +120,13 @@ func getNewPosts() []*embed.Embed {
 		}
 		newId = append(newId, j)
 	}
-	if len(maxId) != 0 {
-		if maxId[len(maxId)-1] < newId[len(newId)-1] {
-			// fmt.Printf("(%d)(%d)\n", maxId[len(maxId)-1], newId[len(newId)-1])
-			var prevMaxId = maxId[len(maxId)-1]
-
-			for i := range newId {
-				if newId[i] > prevMaxId {
-					fmt.Printf("NewId %d\n", newId[i])
-					return parseNewPosts(BoardPosts, newIdString, maxId[len(maxId)-1])
-				}
-				// fmt.Println(i, s)
-			}
-			// fmt.Printf("Il a y eu %d nouveaux msg\n", maxId[i])
-			fmt.Println("no new id")
-			return nil
+	if maxId[board] != 0 {
+		if maxId[board] < newId[len(newId)-1] {
+			return parseNewPosts(BoardPosts, maxId[board], board)
 		}
 	} else {
 		fmt.Println("first setup")
-		maxId = newId
+		maxId[board] = newId[len(newId)-1]
 	}
-	fmt.Println()
-
-	// TODO: parse the posts && keep only the new ones && keep the highest id
-	// TODO: return an array of posts (fill the function GetNewPosts())
-	// brutPosts := parseNewPosts(BoardPosts, getId)
-	// embedPosts := EmbedNewPosts(brutPosts)
 	return nil
 }
-
-// 1 2 3
-// 1 2 3 4 5
-// 1 2 3 -> 4 5

@@ -10,19 +10,29 @@ import (
 	"time"
 )
 
+type arrayFlags []string
+
 var (
 	Token     string
 	ChannelID string
 	Seconde   int
-	Board     string
+	Boards    arrayFlags
 )
+
+func (i *arrayFlags) String() string {
+	return "my string representation"
+}
+
+func (i *arrayFlags) Set(value string) error {
+	*i = append(*i, value)
+	return nil
+}
 
 func init() {
 	flag.StringVar(&Token, "t", "", "Bot Token")
 	flag.StringVar(&ChannelID, "c", "", "Channel ID")
 	flag.IntVar(&Seconde, "s", 5, "second  between refresh")
-	flag.StringVar(&Board, "b", "announcement", "board to notify") // TODO: modify to add multiple boards
-
+	flag.Var(&Boards, "b", "board to notify")
 	flag.Parse()
 }
 
@@ -43,11 +53,13 @@ func main() {
 		for true {
 			time.Sleep(time.Duration(Seconde) * time.Second)
 
-			newPosts := getNewPosts()
-			for _, v := range newPosts {
-				_, err := dg.ChannelMessageSendEmbed(ChannelID, v.MessageEmbed)
-				if err != nil {
-					return
+			for _, board := range Boards {
+				newPosts := getNewPosts(board)
+				for _, v := range newPosts {
+					_, err := dg.ChannelMessageSendEmbed(ChannelID, v.MessageEmbed)
+					if err != nil {
+						return
+					}
 				}
 			}
 		}
