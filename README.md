@@ -26,6 +26,11 @@ Run the application
 ```bash
 docker run poc-lab -t {bot_token} -c {channel_id}  -s {delay} -b {board}
 ```
+Run with several boards:
+```
+docker run poc-lab -t {bot_token} -c {channel_id}  -s {delay} -b {board} -b {board}
+
+```
 
 ### Usage
 
