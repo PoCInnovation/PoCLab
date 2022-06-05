@@ -35,15 +35,13 @@ func (t *timer) Set(value string) error {
 }
 
 var (
-	Token     string
-	ChannelID string
-	Seconde   timer
-	Boards    arrayFlags
+	WebhookURL string
+	Seconde    timer
+	Boards     arrayFlags
 )
 
 func init() {
-	flag.StringVar(&Token, "t", "", "Bot Token")
-	flag.StringVar(&ChannelID, "c", "", "Channel ID")
+	flag.StringVar(&WebhookURL, "w", "", "Webhook URL")
 	flag.Var(&Seconde, "s", "second  between refresh")
 	flag.Var(&Boards, "b", "board to notify")
 	flag.Parse()

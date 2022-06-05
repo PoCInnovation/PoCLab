@@ -24,26 +24,24 @@ docker build -t poc-lab .
 Run the application
 
 ```bash
-docker run poc-lab -t {bot_token} -c {channel_id}  -s {delay} -b {board}
+docker run poc-lab -w {webhookURL} -s {delay} -b {board}
 ```
 Run with several boards:
 ```
-docker run poc-lab -t {bot_token} -c {channel_id}  -s {delay} -b {board} -b {board}
+docker run poc-lab -w {webhookURL} -s {delay} -b {board} -b {board}
 
 ```
 
 ### Usage
 
 ```bash
-Usage of ./poc-lab:
+Usage of /tmp/go-build3666483979/b001/exe/Bot:
   -b value
         board to notify
-  -c string
-        Channel ID
   -s value
         second  between refresh
-  -t string
-        Bot Token
+  -w string
+        Webhook URL
  ```
  
  ### Result
