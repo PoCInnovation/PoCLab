@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	embed "github.com/Clinet/discordgo-embed"
 	"github.com/enescakir/emoji"
 	abci "github.com/gnolang/gno/pkgs/bft/abci/types"
 	"github.com/gnolang/gno/pkgs/bft/rpc/client"
@@ -51,6 +50,18 @@ type Post struct {
 	Id          int
 }
 
+type Author struct {
+	Name    string `json:"name"`
+	IconUrl string `json:"icon_url"`
+}
+
+type Embed struct {
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	Author      Author `json:"author"`
+	Color       int    `json:"color"`
+}
+
 func GetPostInfos(post string, id int) Post {
 	regAuthor := regexp.MustCompile(`\\- \[(@[a-z]+)\]`)
 	regTitle := regexp.MustCompile(`## \[([^\[\]]+)\]`)
@@ -81,7 +92,7 @@ func GetPostID(s string) (int, error) {
 	return strconv.Atoi(match[1])
 }
 
-func parseNewPosts(BoardPosts string, board string) []*embed.Embed {
+func parseNewPosts(BoardPosts string, board string) []Embed {
 	var post []Post
 	newMaxId := maxId[board]
 	a := strings.Split(BoardPosts, "----------------------------------------")
@@ -98,20 +109,24 @@ func parseNewPosts(BoardPosts string, board string) []*embed.Embed {
 	return EmbedNewPosts(post, board)
 }
 
-func EmbedNewPosts(posts []Post, board string) []*embed.Embed {
-	embeds := make([]*embed.Embed, 0)
+func EmbedNewPosts(posts []Post, board string) []Embed {
+	embeds := make([]Embed, 0)
 	for _, post := range posts {
-		embeds = append(embeds, embed.NewEmbed().
-			SetTitle(fmt.Sprintf("New post on: %s %v ", board, emoji.OpenMailboxWithRaisedFlag)).
-			SetDescription(fmt.Sprintf("**%s**\n%s\n\nhttps://gno.land/r/boards:%s/%d", post.Title, post.Description, board, post.Id)).
-			SetAuthor(post.Author).
-			SetColor(0x6e0e08))
+		embeds = append(embeds, Embed{
+			Title:       fmt.Sprintf("New post on: %s %v ", board, emoji.OpenMailboxWithRaisedFlag),
+			Description: fmt.Sprintf("**%s**\n%s\n\nhttps://gno.land/r/boards:%s/%d", post.Title, post.Description, board, post.Id),
+			Author: Author{
+				Name:    post.Author,
+				IconUrl: "https://cdn.discordapp.com/attachments/981266192390049846/983052513932607488/unknown.png",
+			},
+			Color: 7212552,
+		})
 	}
 	fmt.Printf("THERE IS %d NEW POSTS\n", len(embeds))
 	return embeds
 }
 
-func getNewPosts(board string) ([]*embed.Embed, error) {
+func getNewPosts(board string) ([]Embed, error) {
 	// this return the posts from the watched board
 	BoardPosts, err := getBoardsPosts(board)
 	if err != nil {
