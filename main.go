@@ -1,13 +1,20 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 )
+
+type Body struct {
+	Embeds []Embed `json:"embeds"`
+}
 
 func main() {
 	err := setup(Boards)
@@ -39,10 +46,12 @@ func main() {
 				err = dg.Close()
 				return
 			}
+			// post request on webhook
 			for _, p := range newPosts {
-				_, err := dg.ChannelMessageSendEmbed(ChannelID, p.MessageEmbed)
+				e := Body{Embeds: []Embed{p}}
+				jsonData, _ := json.Marshal(e)
+				_, err = http.Post(`https://discord.com/api/webhooks/982746889868935198/CVXU-yDUWej-1WbgIYETpIaehMU1GY37u8hDrYqBZJl4UItt313C-J_t-WQ9L8Ey0wG8`, "application/json", bytes.NewBuffer(jsonData))
 				if err != nil {
-					err = dg.Close()
 					return
 				}
 			}
