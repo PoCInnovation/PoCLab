@@ -117,29 +117,17 @@ func getNewPosts(board string) ([]*embed.Embed, error) {
 	if err != nil {
 		return nil, err
 	}
+	re := regexp.MustCompile("\\bpostid=([0-9]+)")
+	var newIdString = re.FindAllStringSubmatch(BoardPosts, -1)
+	// var newId []int
 
-	if maxId[board] != 0 {
-		return parseNewPosts(BoardPosts, board), nil
-	} else {
-		re := regexp.MustCompile("\\bpostid=([0-9]+)")
-		var newIdString = re.FindAllStringSubmatch(BoardPosts, -1)
-		var newId []int
-
-		var basicMaxId int
-		for _, i := range newIdString {
-			j, err := strconv.Atoi(i[1])
-			if err != nil {
-				panic(err)
-			}
-			if j > basicMaxId {
-				basicMaxId = j
-			}
+	for _, i := range newIdString {
+		j, err := strconv.Atoi(i[1])
+		if err != nil {
+			panic(err)
 		}
-		if len(newId) > 0 {
-			fmt.Println("first setup for this board:", board)
-			maxId[board] = basicMaxId
-		} else {
-			fmt.Println("Empty board:", board)
+		if j > maxId[board] {
+			return parseNewPosts(BoardPosts, board), nil
 		}
 	}
 	return nil, nil
