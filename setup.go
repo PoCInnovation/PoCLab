@@ -49,6 +49,23 @@ func init() {
 	flag.Parse()
 }
 
+func getHighestId(board string) int {
+	post, err := getBoardsPosts(board)
+	if err != nil {
+		panic(err)
+	}
+	re := regexp.MustCompile("\\bpostid=([0-9]+)")
+	match := re.FindAllStringSubmatch(post, -1)
+	var highestId int
+	for _, postId := range match {
+		id, _ := strconv.Atoi(postId[1])
+		if highestId < id {
+			highestId = id
+		}
+	}
+	return highestId
+}
+
 func setup(Boards []string) error {
 	if Seconde == 0 {
 		Seconde = 5
@@ -68,6 +85,7 @@ func setup(Boards []string) error {
 		if match != nil {
 			return fmt.Errorf("%s", string(res.Data))
 		}
+		maxId[board] = getHighestId(board)
 	}
 	return nil
 }
