@@ -81,12 +81,12 @@ func GetPostID(s string) (int, error) {
 	return strconv.Atoi(match[1])
 }
 
-func parseNewPosts(BoardPosts string, indexMax int, board string) []*embed.Embed {
+func parseNewPosts(BoardPosts string, board string) []*embed.Embed {
 	var post []Post
 	a := strings.Split(BoardPosts, "----------------------------------------")
 	for _, c := range a {
 		nb, _ := GetPostID(c)
-		if nb > indexMax {
+		if nb > maxId[board] {
 			post = append(post, GetPostInfos(c, nb))
 			maxId[board] = nb
 		}
@@ -127,7 +127,7 @@ func getNewPosts(board string) ([]*embed.Embed, error) {
 	}
 	if maxId[board] != 0 {
 		if maxId[board] < newId[len(newId)-1] {
-			return parseNewPosts(BoardPosts, maxId[board], board), nil
+			return parseNewPosts(BoardPosts, board), nil
 		}
 	} else {
 		if len(newId) > 0 {
