@@ -83,14 +83,18 @@ func GetPostID(s string) (int, error) {
 
 func parseNewPosts(BoardPosts string, board string) []*embed.Embed {
 	var post []Post
+	newMaxId := maxId[board]
 	a := strings.Split(BoardPosts, "----------------------------------------")
 	for _, c := range a {
 		nb, _ := GetPostID(c)
 		if nb > maxId[board] {
 			post = append(post, GetPostInfos(c, nb))
-			maxId[board] = nb
+			if nb > newMaxId {
+				newMaxId = nb
+			}
 		}
 	}
+	maxId[board] = newMaxId
 	return EmbedNewPosts(post, board)
 }
 
@@ -114,25 +118,26 @@ func getNewPosts(board string) ([]*embed.Embed, error) {
 		return nil, err
 	}
 
-	re := regexp.MustCompile("\\bpostid=([0-9]+)")
-	var newIdString = re.FindAllStringSubmatch(BoardPosts, -1)
-	var newId []int
-
-	for _, i := range newIdString {
-		j, err := strconv.Atoi(i[1])
-		if err != nil {
-			panic(err)
-		}
-		newId = append(newId, j)
-	}
 	if maxId[board] != 0 {
-		if maxId[board] < newId[len(newId)-1] {
-			return parseNewPosts(BoardPosts, board), nil
-		}
+		return parseNewPosts(BoardPosts, board), nil
 	} else {
+		re := regexp.MustCompile("\\bpostid=([0-9]+)")
+		var newIdString = re.FindAllStringSubmatch(BoardPosts, -1)
+		var newId []int
+
+		var basicMaxId int
+		for _, i := range newIdString {
+			j, err := strconv.Atoi(i[1])
+			if err != nil {
+				panic(err)
+			}
+			if j > basicMaxId {
+				basicMaxId = j
+			}
+		}
 		if len(newId) > 0 {
 			fmt.Println("first setup for this board:", board)
-			maxId[board] = newId[len(newId)-1]
+			maxId[board] = basicMaxId
 		} else {
 			fmt.Println("Empty board:", board)
 		}
