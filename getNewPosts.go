@@ -31,7 +31,7 @@ func makeRequest(qpath string, data []byte) (res *abci.ResponseQuery, err error)
 	return &qres.Response, nil
 }
 
-func getBoardsPosts(board string) (string, error) {
+func getBoardsContents(board string) (string, error) {
 	qpath := "vm/qrender"
 	data := []byte(fmt.Sprintf("%s\n%s", "gno.land/r/boards", board))
 	res, err := makeRequest(qpath, data)
@@ -128,7 +128,29 @@ func EmbedNewPosts(posts []Post, board string) []Embed {
 
 func getNewPosts(board string) ([]Embed, error) {
 	// this return the posts from the watched board
-	BoardPosts, err := getBoardsPosts(board)
+	BoardPosts, err := getBoardsContents(board)
+	if err != nil {
+		return nil, err
+	}
+	re := regexp.MustCompile("\\bpostid=([0-9]+)")
+	var newIdString = re.FindAllStringSubmatch(BoardPosts, -1)
+	// var newId []int
+
+	for _, i := range newIdString {
+		j, err := strconv.Atoi(i[1])
+		if err != nil {
+			panic(err)
+		}
+		if j > maxId[board] {
+			return parseNewPosts(BoardPosts, board), nil
+		}
+	}
+	return nil, nil
+}
+
+func getNewReplies(board string) ([]Embed, error) {
+	// this return the posts from the watched board
+	BoardPosts, err := getBoardsContents(board)
 	if err != nil {
 		return nil, err
 	}
