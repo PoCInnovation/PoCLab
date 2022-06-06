@@ -98,6 +98,7 @@ func parseNewPosts(BoardPosts string, board string) []Embed {
 	a := strings.Split(BoardPosts, "----------------------------------------")
 	for _, c := range a {
 		nb, _ := GetPostID(c)
+		//GetNewReplies(board, nb)
 		if nb > maxId[board] {
 			post = append(post, GetPostInfos(c, nb))
 			if nb > newMaxId {
@@ -132,29 +133,7 @@ func getNewPosts(board string) ([]Embed, error) {
 	if err != nil {
 		return nil, err
 	}
-	re := regexp.MustCompile("\\bpostid=([0-9]+)")
-	var newIdString = re.FindAllStringSubmatch(BoardPosts, -1)
-	// var newId []int
-
-	for _, i := range newIdString {
-		j, err := strconv.Atoi(i[1])
-		if err != nil {
-			panic(err)
-		}
-		if j > maxId[board] {
-			return parseNewPosts(BoardPosts, board), nil
-		}
-	}
-	return nil, nil
-}
-
-func getNewReplies(board string) ([]Embed, error) {
-	// this return the posts from the watched board
-	BoardPosts, err := getBoardsContents(board)
-	if err != nil {
-		return nil, err
-	}
-	re := regexp.MustCompile("\\bpostid=([0-9]+)")
+	re := regexp.MustCompile("\\bpostid=[0-9]+/([0-9]+)")
 	var newIdString = re.FindAllStringSubmatch(BoardPosts, -1)
 	// var newId []int
 

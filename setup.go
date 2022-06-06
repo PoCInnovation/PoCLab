@@ -48,7 +48,7 @@ func init() {
 }
 
 func getHighestId(board string) int {
-	post, err := getBoardsPosts(board)
+	post, err := getBoardsContents(board)
 	if err != nil {
 		panic(err)
 	}
