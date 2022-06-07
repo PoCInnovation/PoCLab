@@ -63,7 +63,7 @@ type Embed struct {
 }
 
 func GetPostInfos(post string, id int) Post {
-	regAuthor := regexp.MustCompile(`\\- \[(@[a-z]+)\]`)
+	regAuthor := regexp.MustCompile(`\\- \[([a-z1-9@]+)\]`)
 	regTitle := regexp.MustCompile(`## \[([^\[\]]+)\]`)
 	regDescription := regexp.MustCompile(`(?s)\)\n\n.*\n\\`)
 	matchTitle := regTitle.FindStringSubmatch(post)
@@ -71,7 +71,8 @@ func GetPostInfos(post string, id int) Post {
 	matchDescription := regDescription.FindStringSubmatch(post)[0][3:]
 	matchDescription = matchDescription[:len(matchDescription)-2]
 
-	fmt.Println(post)
+	// temporary
+	//fmt.Println(post)
 
 	p := Post{
 		Title:       matchTitle[1],
@@ -79,7 +80,8 @@ func GetPostInfos(post string, id int) Post {
 		Description: matchDescription,
 		Id:          id,
 	}
-	fmt.Println(p)
+	// temporary
+	//fmt.Println(p)
 	return p
 }
 
@@ -98,9 +100,12 @@ func parseNewPosts(BoardPosts string, board string) []Embed {
 	a := strings.Split(BoardPosts, "----------------------------------------")
 	for _, c := range a {
 		nb, _ := GetPostID(c)
-		_, err := GetNewReplies(fmt.Sprintf("%s/%d", board, nb), board)
+		r, err := GetNewReplies(fmt.Sprintf("%s/%d", board, nb), board)
 		if err != nil {
 			return nil
+		}
+		if len(r) > 0 {
+			QueueRequest(r)
 		}
 		if nb > maxId[board] {
 			post = append(post, GetPostInfos(c, nb))

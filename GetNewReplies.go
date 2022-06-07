@@ -14,12 +14,12 @@ type Reply struct {
 }
 
 func GetRepliesInfos(replies string, postId int) Reply {
-	regAuthor := regexp.MustCompile(`\\- \[(@[a-z]+)\]`)
-	regContent := regexp.MustCompile(`> ([^\[\]]+)`)
+	regAuthor := regexp.MustCompile(`\\- \[([a-z1-9@]+)\]`)
+	regContent := regexp.MustCompile(`> ([^>\[\]]+)\n>`)
 	matchAuthor := regAuthor.FindStringSubmatch(replies)
 	matchContent := regContent.FindStringSubmatch(replies)
 
-	fmt.Println(replies)
+	//fmt.Println(replies)
 
 	p := Reply{
 		Content: matchContent[1],
@@ -81,7 +81,7 @@ func GetNewReplies(post string, board string) ([]Embed, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(PostReplies)
+	//fmt.Println(PostReplies)
 	re := regexp.MustCompile(fmt.Sprintf("\\br\\/boards:%s\\/([0-9]+)", post))
 	var newIdString = re.FindAllStringSubmatch(PostReplies, -1)
 

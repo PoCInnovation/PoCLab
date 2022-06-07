@@ -27,23 +27,7 @@ func main() {
 				return
 			}
 			//request 10 by 10
-			var b []Embed
-			for i, p := range newPosts {
-				b = append(b, p)
-				if (i+1)%10 == 0 {
-					err := sendRequest(b)
-					if err != nil {
-						return
-					}
-					b = nil
-				}
-			}
-			if len(b) > 0 {
-				err := sendRequest(b)
-				if err != nil {
-					return
-				}
-			}
+			QueueRequest(newPosts)
 		}
 	}
 }
