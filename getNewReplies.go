@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"regexp"
-	"strconv"
 	"strings"
 )
 
@@ -63,15 +62,11 @@ func getNewReplies(post string, board string, postTitle string) ([]Embed, error)
 	if err != nil {
 		return nil, err
 	}
-	re := regexp.MustCompile(fmt.Sprintf("\\br\\/boards:%s\\/([0-9]+)", post))
-	var newIdString = re.FindAllStringSubmatch(PostReplies, -1)
 
-	for _, i := range newIdString {
-		j, err := strconv.Atoi(i[1])
-		if err != nil {
-			panic(err)
-		}
-		if j > maxId[post] {
+	ids := getMessagesIds(PostReplies, fmt.Sprintf("\\br\\/boards:%s\\/([0-9]+)", post))
+
+	for _, i := range ids {
+		if i > maxId[post] {
 			return parseNewReplies(PostReplies, post, postTitle, board), nil
 		}
 	}

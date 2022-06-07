@@ -20,3 +20,19 @@ func getID(s string) (int, error) {
 	}
 	return strconv.Atoi(match[1])
 }
+
+func getMessagesIds(messages string, regex string) []int {
+	re := regexp.MustCompile(regex)
+	var IdsString = re.FindAllStringSubmatch(messages, -1)
+
+	var Ids []int
+	for _, i := range IdsString {
+		j, err := strconv.Atoi(i[1])
+		if err != nil {
+			panic(err)
+		}
+		Ids = append(Ids, j)
+	}
+
+	return Ids
+}

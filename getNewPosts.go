@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"regexp"
-	"strconv"
 	"strings"
 )
 
@@ -79,16 +78,10 @@ func getNewPosts(board string) ([]Embed, error) {
 		return nil, err
 	}
 
-	//TODO: refactor this and create a function to parse the posts id 'func getPostIDs(s string) ([]int, error){}'
-	re := regexp.MustCompile("\\bpostid=([0-9]+)")
-	var newIdString = re.FindAllStringSubmatch(BoardPosts, -1)
+	ids := getMessagesIds(BoardPosts, fmt.Sprintf("\\bpostid=([0-9]+)"))
 
-	for _, i := range newIdString {
-		j, err := strconv.Atoi(i[1])
-		if err != nil {
-			panic(err)
-		}
-		if j > maxId[board] || DoesReply {
+	for _, i := range ids {
+		if i > maxId[board] || DoesReply {
 			return parseNewPosts(BoardPosts, board), nil
 		}
 	}
