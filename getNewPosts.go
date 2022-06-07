@@ -2,46 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/enescakir/emoji"
-	abci "github.com/gnolang/gno/pkgs/bft/abci/types"
-	"github.com/gnolang/gno/pkgs/bft/rpc/client"
 	"regexp"
 	"strconv"
 	"strings"
 )
 
 var maxId = make(map[string]int)
-
-func makeRequest(qpath string, data []byte) (res *abci.ResponseQuery, err error) {
-	opts2 := client.ABCIQueryOptions{
-		// Height: height, XXX
-		// Prove: false, XXX
-	}
-	remote := "gno.land:36657"
-	cli := client.NewHTTP(remote, "/websocket")
-	qres, err := cli.ABCIQueryWithOptions(qpath, data, opts2)
-	if err != nil {
-		return nil, err
-	}
-	if qres.Response.Error != nil {
-		fmt.Printf("Log: %s\n",
-			qres.Response.Log)
-		return nil, qres.Response.Error
-	}
-	return &qres.Response, nil
-}
-
-func getBoardsContents(board string) (string, error) {
-	qpath := "vm/qrender"
-	data := []byte(fmt.Sprintf("%s\n%s", "gno.land/r/boards", board))
-	res, err := makeRequest(qpath, data)
-
-	if err != nil {
-		fmt.Println("Error: ", res.Log)
-		return "", err
-	}
-	return string(res.Data), nil
-}
 
 type Post struct {
 	Title       string
@@ -50,29 +16,16 @@ type Post struct {
 	Id          int
 }
 
-type Author struct {
-	Name    string `json:"name"`
-	IconUrl string `json:"icon_url"`
-}
-
-type Embed struct {
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	Author      Author `json:"author"`
-	Color       int    `json:"color"`
-}
-
-func GetPostInfos(post string, id int) Post {
-	regAuthor := regexp.MustCompile(`\\- \[([a-z1-9@]+)\]`)
+func getPostInfos(post string, id int) Post {
 	regTitle := regexp.MustCompile(`## \[([^\[\]]+)\]`)
+	regAuthor := regexp.MustCompile(`\\- \[([a-z1-9@]+)\]`)
 	regDescription := regexp.MustCompile(`(?s)\)\n\n.*\n\\`)
 	matchTitle := regTitle.FindStringSubmatch(post)
 	matchAuthor := regAuthor.FindStringSubmatch(post)
 	matchDescription := regDescription.FindStringSubmatch(post)[0][3:]
 	matchDescription = matchDescription[:len(matchDescription)-2]
 
-	// temporary
-	//fmt.Println(post)
+	fmt.Println(post)
 
 	p := Post{
 		Title:       matchTitle[1],
@@ -80,18 +33,8 @@ func GetPostInfos(post string, id int) Post {
 		Description: matchDescription,
 		Id:          id,
 	}
-	// temporary
-	//fmt.Println(p)
+	fmt.Println(p)
 	return p
-}
-
-func GetPostID(s string) (int, error) {
-	re := regexp.MustCompile("\\bpostid=([0-9]+)")
-	match := re.FindStringSubmatch(s)
-	if len(match) == 0 {
-		return 0, nil
-	}
-	return strconv.Atoi(match[1])
 }
 
 func getPostTitle(s string) string {
@@ -108,42 +51,25 @@ func parseNewPosts(BoardPosts string, board string) []Embed {
 	newMaxId := maxId[board]
 	a := strings.Split(BoardPosts, "----------------------------------------")
 	for _, c := range a {
-		nb, _ := GetPostID(c)
+		nb, _ := getID(c)
 		if DoesReply {
-			r, err := GetNewReplies(fmt.Sprintf("%s/%d", board, nb), board, getPostTitle(c))
+			r, err := getNewReplies(fmt.Sprintf("%s/%d", board, nb), board, getPostTitle(c))
 			if err != nil {
 				return nil
 			}
 			if len(r) > 0 {
-				QueueRequest(r)
+				queueRequest(r)
 			}
 		}
 		if nb > maxId[board] {
-			post = append(post, GetPostInfos(c, nb))
+			post = append(post, getPostInfos(c, nb))
 			if nb > newMaxId {
 				newMaxId = nb
 			}
 		}
 	}
 	maxId[board] = newMaxId
-	return EmbedNewPosts(post, board)
-}
-
-func EmbedNewPosts(posts []Post, board string) []Embed {
-	embeds := make([]Embed, 0)
-	for _, post := range posts {
-		embeds = append(embeds, Embed{
-			Title:       fmt.Sprintf("New post on: %s %v ", board, emoji.OpenMailboxWithRaisedFlag),
-			Description: fmt.Sprintf("**%s**\n%s\n\nhttps://gno.land/r/boards:%s/%d", post.Title, post.Description, board, post.Id),
-			Author: Author{
-				Name:    formatAuthor(post.Author),
-				IconUrl: "https://cdn.discordapp.com/attachments/981266192390049846/983052513932607488/unknown.png",
-			},
-			Color: 7212552,
-		})
-	}
-	fmt.Printf("THERE IS %d NEW POSTS\n", len(embeds))
-	return embeds
+	return embedPosts(post, board)
 }
 
 func getNewPosts(board string) ([]Embed, error) {
@@ -152,9 +78,10 @@ func getNewPosts(board string) ([]Embed, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	//TODO: refactor this and create a function to parse the posts id 'func getPostIDs(s string) ([]int, error){}'
 	re := regexp.MustCompile("\\bpostid=([0-9]+)")
 	var newIdString = re.FindAllStringSubmatch(BoardPosts, -1)
-	// var newId []int
 
 	for _, i := range newIdString {
 		j, err := strconv.Atoi(i[1])

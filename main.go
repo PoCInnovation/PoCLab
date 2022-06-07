@@ -26,8 +26,8 @@ func main() {
 				fmt.Println("error in getNewPosts.")
 				return
 			}
-			//request 10 by 10
-			QueueRequest(newPosts)
+			//request 10 by 10 (max for discord webhooks)
+			queueRequest(newPosts)
 		}
 	}
 }
