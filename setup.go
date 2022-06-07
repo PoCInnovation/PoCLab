@@ -97,12 +97,15 @@ func setup(Boards []string) error {
 			return err
 		}
 
+		println(board)
+
 		re := regexp.MustCompile("\\b(board does not exist:)")
 		match := re.FindStringSubmatch(string(res.Data))
-
 		if match != nil {
 			return fmt.Errorf("%s", string(res.Data))
 		}
+	}
+	for _, board := range Boards {
 		maxId[board] = getHighestId(board)
 	}
 	return nil
