@@ -24,20 +24,26 @@ docker build -t poc-lab .
 Run the application
 
 ```bash
-docker run poc-lab -w {webhookURL} -s {delay} -b {board}
+docker run poc-lab -w {webhookURL} -s {delay} -b {board} 
 ```
 Run with several boards:
 ```
 docker run poc-lab -w {webhookURL} -s {delay} -b {board} -b {board}
 
 ```
+Run to also track the reply on the tracked board(s):
+```
+docker run poc-lab -w {webhookURL} -s {delay} -b {board} --reply
+```
 
 ### Usage
 
-```bash
-Usage of /tmp/go-build3666483979/b001/exe/Bot:
+```
+Usage of Bot:
   -b value
         board to notify
+  -reply
+        do track reply of post on tracked boards
   -s value
         second  between refresh
   -w string

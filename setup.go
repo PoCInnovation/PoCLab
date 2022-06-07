@@ -38,17 +38,36 @@ var (
 	WebhookURL string
 	Seconde    timer
 	Boards     arrayFlags
+	DoesReply  bool
 )
 
 func init() {
 	flag.StringVar(&WebhookURL, "w", "", "Webhook URL")
 	flag.Var(&Seconde, "s", "second  between refresh")
 	flag.Var(&Boards, "b", "board to notify")
+	flag.BoolVar(&DoesReply, "reply", false, "do track reply of post on tracked boards")
 	flag.Parse()
 }
 
+func getHighestReplyId(post string) {
+	reply, err := getBoardsContents(post)
+	if err != nil {
+		panic(err)
+	}
+	re := regexp.MustCompile(fmt.Sprintf("\\br\\/boards:%s\\/([0-9]+)", post))
+	match := re.FindAllStringSubmatch(reply, -1)
+	var highestId int
+	for _, postId := range match {
+		id, _ := strconv.Atoi(postId[1])
+		if highestId < id {
+			highestId = id
+		}
+	}
+	maxId[post] = highestId
+}
+
 func getHighestId(board string) int {
-	post, err := getBoardsPosts(board)
+	post, err := getBoardsContents(board)
 	if err != nil {
 		panic(err)
 	}
@@ -57,6 +76,7 @@ func getHighestId(board string) int {
 	var highestId int
 	for _, postId := range match {
 		id, _ := strconv.Atoi(postId[1])
+		getHighestReplyId(fmt.Sprintf("%s/%d", board, id))
 		if highestId < id {
 			highestId = id
 		}
@@ -79,10 +99,11 @@ func setup(Boards []string) error {
 
 		re := regexp.MustCompile("\\b(board does not exist:)")
 		match := re.FindStringSubmatch(string(res.Data))
-
 		if match != nil {
 			return fmt.Errorf("%s", string(res.Data))
 		}
+	}
+	for _, board := range Boards {
 		maxId[board] = getHighestId(board)
 	}
 	return nil
