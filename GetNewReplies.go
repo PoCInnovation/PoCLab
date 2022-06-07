@@ -14,7 +14,7 @@ type Reply struct {
 }
 
 func GetRepliesInfos(replies string, postId int) Reply {
-	regAuthor := regexp.MustCompile(`\\- \[([a-z1-9@]+)\]`)
+	regAuthor := regexp.MustCompile(`\\- \[([a-z0-9@]+)\]`)
 	regContent := regexp.MustCompile(`> ([^>\[\]]+)\n>`)
 	matchAuthor := regAuthor.FindStringSubmatch(replies)
 	matchContent := regContent.FindStringSubmatch(replies)
@@ -30,14 +30,14 @@ func GetRepliesInfos(replies string, postId int) Reply {
 	return p
 }
 
-func EmbedNewReplies(replies []Reply, post string) []Embed {
+func EmbedNewReplies(replies []Reply, post string, postTitle string, board string) []Embed {
 	var embeds []Embed
 	for _, r := range replies {
 		embed := Embed{
-			Title:       fmt.Sprintf("New reply on %s", post),
-			Description: fmt.Sprintf("%s said: %s", r.Author, r.Content),
+			Title:       fmt.Sprintf("New reply on board: %s", board),
+			Description: fmt.Sprintf("post -> ***%s***: %s\n\nhttps://gno.land/r/boards:%s", postTitle, r.Content, post),
 			Author: Author{
-				Name:    r.Author,
+				Name:    formatAuthor(r.Author),
 				IconUrl: "https://cdn.discordapp.com/attachments/981266192390049846/983052513932607488/unknown.png",
 			},
 			Color: 0x00ff00,
@@ -57,7 +57,7 @@ func ParsePostsReplies(postReplies string) []string {
 	return replies
 }
 
-func ParseNewReplies(postReplies string, post string) []Embed {
+func ParseNewReplies(postReplies string, post string, postTitle string, board string) []Embed {
 	var replies []Reply
 	newMaxId := maxId[post]
 	// parse the replies
@@ -72,10 +72,10 @@ func ParseNewReplies(postReplies string, post string) []Embed {
 		}
 	}
 	maxId[post] = newMaxId
-	return EmbedNewReplies(replies, post)
+	return EmbedNewReplies(replies, post, postTitle, board)
 }
 
-func GetNewReplies(post string, board string) ([]Embed, error) {
+func GetNewReplies(post string, board string, postTitle string) ([]Embed, error) {
 	// this return the posts from the watched board
 	PostReplies, err := getBoardsContents(post)
 	if err != nil {
@@ -91,7 +91,7 @@ func GetNewReplies(post string, board string) ([]Embed, error) {
 			panic(err)
 		}
 		if j > maxId[post] {
-			return ParseNewReplies(PostReplies, post), nil
+			return ParseNewReplies(PostReplies, post, postTitle, board), nil
 		}
 	}
 	return nil, nil

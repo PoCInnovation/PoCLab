@@ -94,18 +94,29 @@ func GetPostID(s string) (int, error) {
 	return strconv.Atoi(match[1])
 }
 
+func getPostTitle(s string) string {
+	regTitle := regexp.MustCompile(`## \[([^\[\]]+)\]`)
+	match := regTitle.FindStringSubmatch(s)
+	if len(match) == 0 {
+		return ""
+	}
+	return match[1]
+}
+
 func parseNewPosts(BoardPosts string, board string) []Embed {
 	var post []Post
 	newMaxId := maxId[board]
 	a := strings.Split(BoardPosts, "----------------------------------------")
 	for _, c := range a {
 		nb, _ := GetPostID(c)
-		r, err := GetNewReplies(fmt.Sprintf("%s/%d", board, nb), board)
-		if err != nil {
-			return nil
-		}
-		if len(r) > 0 {
-			QueueRequest(r)
+		if DoesReply {
+			r, err := GetNewReplies(fmt.Sprintf("%s/%d", board, nb), board, getPostTitle(c))
+			if err != nil {
+				return nil
+			}
+			if len(r) > 0 {
+				QueueRequest(r)
+			}
 		}
 		if nb > maxId[board] {
 			post = append(post, GetPostInfos(c, nb))
@@ -125,7 +136,7 @@ func EmbedNewPosts(posts []Post, board string) []Embed {
 			Title:       fmt.Sprintf("New post on: %s %v ", board, emoji.OpenMailboxWithRaisedFlag),
 			Description: fmt.Sprintf("**%s**\n%s\n\nhttps://gno.land/r/boards:%s/%d", post.Title, post.Description, board, post.Id),
 			Author: Author{
-				Name:    post.Author,
+				Name:    formatAuthor(post.Author),
 				IconUrl: "https://cdn.discordapp.com/attachments/981266192390049846/983052513932607488/unknown.png",
 			},
 			Color: 7212552,
@@ -150,7 +161,7 @@ func getNewPosts(board string) ([]Embed, error) {
 		if err != nil {
 			panic(err)
 		}
-		if j > maxId[board] {
+		if j > maxId[board] || DoesReply {
 			return parseNewPosts(BoardPosts, board), nil
 		}
 	}
