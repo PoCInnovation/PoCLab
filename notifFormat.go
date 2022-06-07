@@ -32,7 +32,7 @@ func embedReplies(replies []Reply, post string, postTitle string, board string) 
 				Name:    formatAuthor(r.Author),
 				IconUrl: "https://cdn.discordapp.com/attachments/981266192390049846/983052513932607488/unknown.png",
 			},
-			Color: 0x00ff00,
+			Color: 7212552,
 		}
 		embeds = append(embeds, embed)
 	}
