@@ -97,8 +97,6 @@ func setup(Boards []string) error {
 			return err
 		}
 
-		println(board)
-
 		re := regexp.MustCompile("\\b(board does not exist:)")
 		match := re.FindStringSubmatch(string(res.Data))
 		if match != nil {
