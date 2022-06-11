@@ -17,7 +17,7 @@ type Post struct {
 
 func getPostInfos(post string, id int) Post {
 	regTitle := regexp.MustCompile(`## \[([^\[\]]+)\]`)
-	regAuthor := regexp.MustCompile(`\\- \[([a-zA-Z0-9_.-]+)\]`)
+	regAuthor := regexp.MustCompile(`\\- \[([a-zA-Z0-9_.-@]+)\]`)
 	regDescription := regexp.MustCompile(`(?s)\)\n\n.*\n\\`)
 	matchTitle := regTitle.FindStringSubmatch(post)
 	matchAuthor := regAuthor.FindStringSubmatch(post)
