@@ -27,7 +27,7 @@ func embedReplies(replies []Reply, post string, postTitle string, board string) 
 	for _, r := range replies {
 		embed := Embed{
 			Title:       fmt.Sprintf("New reply on board: %s", board),
-			Description: fmt.Sprintf("post -> ***%s***: %s\n\nhttps://gno.land/r/boards:%s", postTitle, r.Content, post),
+			Description: fmt.Sprintf("post: ***%s***\nreply: %s\n\nhttps://gno.land/r/boards:%s", postTitle, r.Content, post),
 			Author: Author{
 				Name:    formatAuthor(r.Author),
 				IconUrl: "https://cdn.discordapp.com/attachments/981266192390049846/983052513932607488/unknown.png",
