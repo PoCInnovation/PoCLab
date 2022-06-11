@@ -12,21 +12,24 @@ type Reply struct {
 	Id      int
 }
 
-func getRepliesInfos(replies string, postId int) Reply {
+func getReplyInfos(reply string, postId int) (Reply, error) {
 	regAuthor := regexp.MustCompile(`\\- \[([a-zA-Z0-9_.-@]+)\]`)
 	regContent := regexp.MustCompile(`> ([^>\[\]]+)\n>`)
-	matchAuthor := regAuthor.FindStringSubmatch(replies)
-	matchContent := regContent.FindStringSubmatch(replies)
+	matchAuthor := regAuthor.FindStringSubmatch(reply)
+	matchContent := regContent.FindStringSubmatch(reply)
 
-	fmt.Println(replies)
+	fmt.Println(reply)
 
+	if len(matchContent) < 2 || len(matchAuthor) < 2 {
+		return Reply{}, fmt.Errorf("bad format reply :%s", reply)
+	}
 	p := Reply{
 		Content: matchContent[1],
 		Author:  matchAuthor[1],
 		Id:      postId,
 	}
 	fmt.Println(p)
-	return p
+	return p, nil
 }
 
 func parsePostsReplies(postReplies string) []string {
@@ -46,7 +49,11 @@ func parseNewReplies(postReplies string, post string, postTitle string, board st
 	for _, c := range a {
 		nb, _ := getID(c)
 		if nb > maxId[post] {
-			replies = append(replies, getRepliesInfos(c, nb))
+			reply, err := getReplyInfos(c, nb)
+			if err != nil {
+				continue
+			}
+			replies = append(replies, reply)
 			if nb > newMaxId {
 				newMaxId = nb
 			}

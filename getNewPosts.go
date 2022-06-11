@@ -15,7 +15,7 @@ type Post struct {
 	Id          int
 }
 
-func getPostInfos(post string, id int) Post {
+func getPostInfos(post string, id int) (Post, error) {
 	regTitle := regexp.MustCompile(`## \[([^\[\]]+)\]`)
 	regAuthor := regexp.MustCompile(`\\- \[([a-zA-Z0-9_.-@]+)\]`)
 	regDescription := regexp.MustCompile(`(?s)\)\n\n.*\n\\`)
@@ -26,6 +26,9 @@ func getPostInfos(post string, id int) Post {
 
 	fmt.Println(post)
 
+	if len(matchTitle) < 2 || len(matchAuthor) < 2 {
+		return Post{}, fmt.Errorf("bad format reply :%s", post)
+	}
 	p := Post{
 		Title:       matchTitle[1],
 		Author:      matchAuthor[1],
@@ -33,7 +36,7 @@ func getPostInfos(post string, id int) Post {
 		Id:          id,
 	}
 	fmt.Println(p)
-	return p
+	return p, nil
 }
 
 func getPostTitle(s string) string {
@@ -46,7 +49,7 @@ func getPostTitle(s string) string {
 }
 
 func parseNewPosts(BoardPosts string, board string) []Embed {
-	var post []Post
+	var posts []Post
 	newMaxId := maxId[board]
 	a := strings.Split(BoardPosts, "----------------------------------------")
 	for _, c := range a {
@@ -61,14 +64,18 @@ func parseNewPosts(BoardPosts string, board string) []Embed {
 			}
 		}
 		if nb > maxId[board] {
-			post = append(post, getPostInfos(c, nb))
+			post, err := getPostInfos(c, nb)
+			if err != nil {
+				continue
+			}
+			posts = append(posts, post)
 			if nb > newMaxId {
 				newMaxId = nb
 			}
 		}
 	}
 	maxId[board] = newMaxId
-	return embedPosts(post, board)
+	return embedPosts(posts, board)
 }
 
 func getNewPosts(board string) ([]Embed, error) {
