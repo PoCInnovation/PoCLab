@@ -13,7 +13,7 @@ type Reply struct {
 }
 
 func getRepliesInfos(replies string, postId int) Reply {
-	regAuthor := regexp.MustCompile(`\\- \[([a-z0-9@]+)\]`)
+	regAuthor := regexp.MustCompile(`\\- \[([a-zA-Z0-9_.-@]+)\]`)
 	regContent := regexp.MustCompile(`> ([^>\[\]]+)\n>`)
 	matchAuthor := regAuthor.FindStringSubmatch(replies)
 	matchContent := regContent.FindStringSubmatch(replies)
